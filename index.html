@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Monster Energy intro Effect</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            cursor: url(images/main_page/cursor_logo.png), auto;
+        }
+
+        html, body {
+            width: 100%;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        body {
+            background: #000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: Arial, sans-serif;
+        }
+
+        .battery-container {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .battery {
+            position: relative;
+            width: 120px;
+            height: 200px;
+            border: 4px solid #333;
+            border-radius: 8px;
+            background: #1a1a1a;
+            box-shadow: 0 0 20px rgba(0, 255, 0, 0.3);
+        }
+
+        .battery-top {
+            position: absolute;
+            top: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 40px;
+            height: 15px;
+            background: #333;
+            border-radius: 4px 4px 0 0;
+        }
+
+        .battery-body {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            border-radius: 4px;
+        }
+
+        .energy-liquid {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 0%;
+            background: linear-gradient(to top, 
+                #00ff00 0%, 
+                #00ff88 30%, 
+                #00ff44 60%, 
+                #00ff00 100%);
+            border-radius: 0 0 4px 4px;
+            transition: height 0.8s ease-out, background 0.5s ease;
+            box-shadow: 0 0 20px rgba(0, 255, 0, 0.8);
+        }
+
+        .energy-bubbles {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                radial-gradient(circle at 20% 80%, rgba(255, 255, 255, 0.3) 2px, transparent 2px),
+                radial-gradient(circle at 40% 70%, rgba(255, 255, 255, 0.2) 1px, transparent 1px),
+                radial-gradient(circle at 60% 60%, rgba(255, 255, 255, 0.4) 1.5px, transparent 1.5px),
+                radial-gradient(circle at 80% 50%, rgba(255, 255, 255, 0.3) 1px, transparent 1px);
+            background-size: 30px 30px, 20px 20px, 25px 25px, 15px 15px;
+            animation: bubbleRise 2s linear infinite;
+            opacity: 0.6;
+        }
+
+        .percentage {
+            color: #00ff00;
+            font-size: 24px;
+            font-weight: bold;
+            text-shadow: 0 0 10px rgba(0, 255, 0, 0.8);
+            transition: color 0.3s ease;
+        }
+
+        @keyframes bubbleRise {
+            0% {
+                transform: translateY(100%);
+                opacity: 0;
+            }
+            20% {
+                opacity: 0.6;
+            }
+            80% {
+                opacity: 0.6;
+            }
+            100% {
+                transform: translateY(-100%);
+                opacity: 0;
+            }
+        }
+
+        /* 배터리 글로우 효과 */
+        .battery::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(45deg, #00ff00, #00ff88, #00ff00);
+            border-radius: 10px;
+            z-index: -1;
+            animation: borderGlow 2s ease-in-out infinite;
+        }
+
+        @keyframes borderGlow {
+            0%, 100% {
+                opacity: 0.3;
+            }
+            50% {
+                opacity: 0.8;
+            }
+        }
+        
+        /* ⭐️ 모바일 반응형 코드 제거됨 ⭐️ */
+
+    </style>
+</head>
+<body>
+    <div class="battery-container">
+        <div class="battery">
+            <div class="battery-body">
+                <div class="energy-liquid"></div>
+                <div class="energy-bubbles"></div>
+            </div>
+            <div class="battery-top"></div>
+        </div>
+        <div class="percentage" id="percentage">0%</div>
+    </div>
+
+    <script>
+        let currentPercentage = 0;
+        
+        const chargeSteps = [
+            { time: 0.3, percentage: 15 },
+            { time: 0.8, percentage: 35 },
+            { time: 1.4, percentage: 53 },
+            { time: 1.8, percentage: 78 },
+            { time: 2.3, percentage: 92 },
+            { time: 2.7, percentage: 100 }
+        ];
+
+        function updateBattery(percentage) {
+            const percentageElement = document.getElementById('percentage');
+            const energyLiquid = document.querySelector('.energy-liquid');
+            
+            currentPercentage = percentage;
+            percentageElement.textContent = Math.round(currentPercentage) + '%';
+            energyLiquid.style.height = currentPercentage + '%';
+            
+            if (currentPercentage < 20) {
+                energyLiquid.style.background = 'linear-gradient(to top, #ff0000 0%, #ff4444 100%)';
+            } else if (currentPercentage < 50) {
+                energyLiquid.style.background = 'linear-gradient(to top, #ffaa00 0%, #ffcc44 100%)';
+            } else {
+                energyLiquid.style.background = 'linear-gradient(to top, #00ff00 0%, #00ff88 30%, #00ff44 60%, #00ff00 100%)';
+            }
+        }
+
+        function startAutoCharge() {
+            chargeSteps.forEach((step, index) => {
+                setTimeout(() => {
+                    updateBattery(step.percentage);
+                    
+                    if (index === chargeSteps.length - 1) {
+                        setTimeout(() => {
+                            window.location.href = 'main.html';
+                        }, 1000); 
+                    }
+                }, step.time * 1000);
+            });
+        }
+
+        setTimeout(() => {
+            startAutoCharge();
+        }, 500);
+    </script>
+</body>
+</html>
